@@ -6,9 +6,11 @@
 const int MAX_N = 500000;
 const int MAX_D = 300;
 
-std::vector<int> read_sorted(const int n)
+typedef std::vector<int> intvec_t;
+
+intvec_t read_sorted(const int n)
 {
-	std::vector<int> result;
+	intvec_t result;
 
 	result.reserve(n);
 	for(int i = 0; i < n; ++i){
@@ -21,9 +23,10 @@ std::vector<int> read_sorted(const int n)
 	return result;
 }
 
-std::vector<int> read_list(const int n)
+intvec_t read_list(const int n)
 {
-	std::vector<int> result;
+	intvec_t result;
+	
 	result.reserve(n);
 	for(int i = 0; i < n; ++i)
 	{
@@ -34,23 +37,25 @@ std::vector<int> read_list(const int n)
 	return result;
 }
 
-int find_pair(const std::vector<int>& N, int budget)
+int find_pair(const intvec_t& N, int budget)
 {
 	int r = 0;
 
-	for(std::vector<int>::const_iterator n1
-			= std::lower_bound(N.begin(), N.end(), budget, std::greater<int>());
+	intvec_t::const_iterator n2 = N.end();
+	intvec_t::const_iterator start = std::lower_bound(N.begin(), N.end(), budget, std::greater<int>());
+	for(intvec_t::const_iterator n1 = start;
 		n1 != N.end();
 		++n1)
 	{
 //		std::cout << "n1: " << *n1 << std::endl;
-		if( (budget - r) <= (budget - (*n1 + N[0]) ) ) break;
+
+		if( (budget - r) <= (budget - (*n1 + *start) ) ) break;
 		const int remaining = budget - *n1;
-		std::vector<int>::const_iterator n2
-			= std::lower_bound(N.begin(), N.end(), remaining, std::greater<int>());
-		if( n2 == N.end() ) continue;
-		if( n1 == n2 ) ++n2;
-		if( n2 == N.end() ) continue;
+		intvec_t::const_iterator n2c = std::lower_bound(n1, n2, remaining, std::greater<int>());
+		if( n2c == N.end() ) continue;
+		if( n1 == n2c ) ++n2c;
+		if( n2c == N.end() ) continue;
+		n2 = n2c;
 //		std::cout << "remaining: " << remaining << ", n2: " << *n2 << std::endl;
 		const int candidate = *n1 + *n2;
 		if( (budget - r) > (budget - candidate) )
@@ -63,7 +68,7 @@ int find_pair(const std::vector<int>& N, int budget)
 
 int main()
 {
-	std::vector<int> N, D;
+	intvec_t N, D;
 	int n, d;
 	std::cin >> n >> d;
 	N = read_sorted(n);
@@ -77,7 +82,7 @@ int main()
 	for(int i: D) { std::cout << i << ", "; }
 	std::cout << std::endl;
 */
-	for(std::vector<int>::const_iterator d = D.begin(); d != D.end(); ++d)
+	for(intvec_t::const_iterator d = D.begin(); d != D.end(); ++d)
 	{
 		std::cout << find_pair(N, *d) << '\n';
 	}
