@@ -3,19 +3,18 @@
 #include <algorithm>
 #include <functional>
 #include <map>
-#include <ext/hash_map>
 #include <cstdlib>
 #include <cstdio>
 
 const int MAX_N = 500000;
 const int MAX_D = 300;
+const int MAX_PRICE = 1000000;
 const size_t BUFFER_SIZE = 5000000;
 
 typedef std::vector<int> intvec_t;
 typedef std::map<int, int> intmap_t;
-typedef __gnu_cxx::hash_map<int, int> inthash_t;
 
-inthash_t price_hash;
+static unsigned char price_array[MAX_PRICE];
 
 int find_pair(const intvec_t& N, const int budget)
 {
@@ -30,9 +29,10 @@ int find_pair(const intvec_t& N, const int budget)
 	{
 		if((n1 + 1) != N.end() && *(n1 + 1) == *n1) continue;
 		const int remaining = budget - *n1;
-		inthash_t::const_iterator h = price_hash.find(remaining);
-		if(h != price_hash.end()){
-			if(h->first != *n1 || h->second > 1) return budget;
+		if( price_array[remaining] > 0 )
+		{
+			if( remaining != *n1 ) return budget;
+			if( price_array[remaining] > 1) return budget;
 		}
 	}
 
@@ -57,7 +57,7 @@ int find_pair(const intvec_t& N, const int budget)
 
 int main()
 {
-	char *buf = new char[BUFFER_SIZE];
+	static char buf[BUFFER_SIZE];
 
 	std::cin.read(buf, BUFFER_SIZE);
 
@@ -71,12 +71,7 @@ int main()
 	{
 		const int m = std::strtol(iptr, &iptr, 10);
 		N.push_back(m);
-		inthash_t::iterator h = price_hash.find(m);
-		if(h == price_hash.end()) {
-			price_hash.insert(std::pair<int, int>(m, 1));
-		} else {
-			h->second = 2;
-		}
+		++price_array[m];
 	}
 
 	std::sort(N.begin(), N.end(), std::greater<int>());
@@ -90,20 +85,20 @@ int main()
 	std::cout << std::endl;
 */
 
-	inthash_t table;
+	static int answers1[MAX_PRICE];
 
-	char *outbuf = new char[BUFFER_SIZE];
+	static char outbuf[BUFFER_SIZE];
 	char *outp = outbuf;
 	for(int i = 0; i < d; ++i)
 	{
 		const int d = std::strtol(iptr, &iptr, 10);
-		inthash_t::const_iterator p = table.find(d);
 		int v;
-		if(p == table.end()) {
-			v = find_pair(N, d);
-			table.insert(std::pair<int, int>(d, v));
+		if( answers1[d] )
+		{
+			v = answers1[d] - 1;
 		} else {
-			v = p->second;
+			v = find_pair(N, d);
+			answers1[d] = v + 1;
 		}
 
 		outp += std::snprintf(outp, BUFFER_SIZE - (outp - outbuf), "%d\n", v);
