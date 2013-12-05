@@ -28,6 +28,7 @@ int find_pair(const intvec_t& N, const int budget)
 		n1 != N.end() && budget / 2 <= *n1;
 		++n1)
 	{
+		if((n1 + 1) != N.end() && *(n1 + 1) == *n1) continue;
 		const int remaining = budget - *n1;
 		inthash_t::const_iterator h = price_hash.find(remaining);
 		if(h != price_hash.end()){
@@ -37,12 +38,12 @@ int find_pair(const intvec_t& N, const int budget)
 
 	intvec_t::const_iterator n2 = N.end();
 	for(intvec_t::const_iterator n1 = start;
-		n1 != N.end();
+		n1 != N.end() && r < (*n1 * 2);
 		++n1)
 	{
-		if( r >= (*n1 * 2) ) break;
-		const int remaining = budget - *n1;
+		if((n1 + 1) != N.end() && *(n1 + 1) == *n1) continue;
 
+		const int remaining = budget - *n1;
 		intvec_t::const_iterator n2c = std::lower_bound(n1, n2, remaining, std::greater<int>());
 		if( n2c == N.end() ) continue;
 		if( n1 == n2c ) ++n2c;
@@ -61,17 +62,19 @@ int find_pair(const intvec_t& N, const int budget)
 
 int main()
 {
-	int n, d;
-	std::cin >> n >> d;
 	char *buf = new char[BUFFER_SIZE];
 
-	std::ios_base::sync_with_stdio(false);
 	std::cin.read(buf, BUFFER_SIZE);
+
+	char *iptr = buf;
+	const int n = std::strtol(iptr, &iptr, 10);
+	const int d = std::strtol(iptr, &iptr, 10);
+
 	intvec_t N;
 	N.reserve(n);
 	for(int i = 0; i < n; ++i)
 	{
-		const int m = std::strtol(buf, &buf, 10);
+		const int m = std::strtol(iptr, &iptr, 10);
 		N.push_back(m);
 		inthash_t::iterator h = price_hash.find(m);
 		if(h == price_hash.end()) {
@@ -95,11 +98,10 @@ int main()
 	inthash_t table;
 
 	char *outbuf = new char[BUFFER_SIZE];
-	char *dptr = buf;
 	char *outp = outbuf;
 	for(int i = 0; i < d; ++i)
 	{
-		const int d = std::strtol(dptr, &dptr, 10);
+		const int d = std::strtol(iptr, &iptr, 10);
 		inthash_t::const_iterator p = table.find(d);
 		int v;
 		if(p == table.end()) {
@@ -111,7 +113,6 @@ int main()
 
 		outp += std::snprintf(outp, BUFFER_SIZE - (outp - outbuf), "%d\n", v);
 	}
-	*outp = 0;
 	std::cout.write(outbuf, outp - outbuf);
 	return 0;
 }
