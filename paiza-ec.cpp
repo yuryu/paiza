@@ -5,6 +5,7 @@
 #include <map>
 #include <cstdlib>
 #include <cstdio>
+#include <unistd.h>
 
 const int MAX_N = 500000;
 const int MAX_D = 300;
@@ -59,7 +60,7 @@ int main()
 {
 	static char buf[BUFFER_SIZE];
 
-	std::cin.read(buf, BUFFER_SIZE);
+	read(0, buf, BUFFER_SIZE);
 
 	char *iptr = buf;
 	const int n = std::strtol(iptr, &iptr, 10);
@@ -103,6 +104,6 @@ int main()
 
 		outp += std::snprintf(outp, BUFFER_SIZE - (outp - outbuf), "%d\n", v);
 	}
-	std::cout.write(outbuf, outp - outbuf);
+	write(1, outbuf, outp - outbuf);
 	return 0;
 }
