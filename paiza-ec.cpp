@@ -42,20 +42,15 @@ int find_pair(const intvec_t& N, const int budget)
 		++n1)
 	{
 		if((n1 + 1) != N.end() && *(n1 + 1) == *n1) continue;
-
 		const int remaining = budget - *n1;
+
 		intvec_t::const_iterator n2c = std::lower_bound(n1, n2, remaining, std::greater<int>());
 		if( n2c == N.end() ) continue;
 		if( n1 == n2c ) ++n2c;
 		if( n2c == N.end() ) continue;
 		n2 = n2c;
 //		std::cout << "remaining: " << remaining << ", n2: " << *n2 << std::endl;
-		const int candidate = *n1 + *n2;
-		if( (budget - r) > (budget - candidate) )
-		{
-			r = candidate;
-			if( r == budget ) break;
-		}
+		r = std::max(r, *n1 + *n2);
 	}
 	return r;
 }
